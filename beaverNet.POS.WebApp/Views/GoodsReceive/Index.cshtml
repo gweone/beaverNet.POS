@@ -1,63 +1,107 @@
-﻿@model IEnumerable<beaverNet.POS.WebApp.Models.POS.GoodsReceive>
-
-@{
-    ViewData["Title"] = "Goods Receive";
+﻿@{
+    ViewData["Title"] = "Penerimaan Barang";
+    var grid = Guid.NewGuid();
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a class="btn btn-secondary" data-toggle="collapse" href=".form-filter" role="button" aria-expanded="false" aria-controls=".form-filter">
+        Filter
+    </a>
 </p>
-<table class="table" id="grid">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Number)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GoodsReceiveDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PurchaseOrder)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.GoodsReceiveDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PurchaseOrder.Number)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.GoodsReceiveId" class="btn btn-warning">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.GoodsReceiveId" class="btn btn-success">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.GoodsReceiveId" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
+
+
+<form class="row g-3 collapse form-filter">
+    <div class="col-md-3">
+        <label class="form-label">Purchase Order</label>
+        @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/PurchaseOrder",
+                    FieldIndex = 0,
+                    FieldName = "PurchaseOrderId",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Number"
+                })
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Supplier</label>
+        @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/Vendor",
+                    FieldIndex = 0,
+                    FieldName = "VendorId",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Name"
+                })
+    </div>
+    <div class="col-auto">
+        <label for="inputPassword4" class="form-label">Tanggal Penerimaan</label>
+        <div class="input-group mb-3">
+            <input type="date" class="form-control" name="StartDate" placeholder="Tanggal Mulai">
+            <span class="input-group-text">Sampai</span>
+            <input type="date" class="form-control" name="EndDate" placeholder="Sampai Tanggal">
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="button" onclick="$('#@grid').DataTable().ajax.reload()" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+<br/>
+@await Html.PartialAsync("_DataTables", new SearchModel()
+{
+    Id = grid,
+    ApiUrl = Url.Content("api/GoodsReceive"),
+    Columns = new[] {
+        new SearchColumn(){
+            name = "Number",
+            displayname = "Number"
+        },
+        new SearchColumn(){
+            name = "Description",
+            displayname = "Description"
+        },
+        new SearchColumn(){
+            name = "GoodsReceiveDate",
+            displayname = "GoodsReceiveDate",
+            searchable = false
+        },
+        new SearchColumn(){
+            name = "PurchaseOrder.Number",
+            displayname = "PurchaseOrder"
+        },
+        new SearchColumn(){
+            searchable = false,
+            orderable = false,
+            displayname = "Tindakan"
         }
-    </tbody>
-</table>
+    },
+    AjaxData = @"params.push({name : 'filters[0].column',  value :'PurchaseOrderId' });
+                 params.push({name : 'filters[0].value', value : $('[name=PurchaseOrderId]').val() });
+                 params.push({name : 'filters[0].condition', value : 'Equal' });
 
+                 params.push({name : 'filters[1].column', value :'PurchaseOrder.VendorId' });
+                 params.push({name : 'filters[1].value', value : $('[name=VendorId]').val() });
+                 params.push({name : 'filters[1].condition', value : 'Equal' });
 
-@section Scripts{
-    <script>
-        $(document).ready(function () {
-            $('#grid').DataTable();
-        });
-    </script>
-}
+                 params.push({name : 'filters[2].column', value :'GoodsReceiveDate' });
+                 params.push({name : 'filters[2].value', value : $('[name=StartDate]').val() });
+                 params.push({name : 'filters[2].condition', value : 'GreaterThanOrEqual' });
+
+                 params.push({name : 'filters[3].column', value :'GoodsReceiveDate' });
+                 params.push({name : 'filters[3].value', value : $('[name=EndDate]').val() });
+                 params.push({name : 'filters[3].condition', value : 'LessThanOrEqual' });
+                ",
+    ColumnDefinition = @"'columnDefs': [{
+                    'targets': -1,
+                    'data': null,
+                    'orderable': false,
+                    'searchable':false,
+                    'render': function (data, type, row, meta) {
+                        return '<a href=""/GoodsReceive/Edit/' + data[4] + '""class=""btn btn-warning"">Edit</a>' +
+                               '<a href=""/GoodsReceive/Details/' + data[4] + '""class=""btn btn-success"">Details</a>' +
+                               '<a href=""/GoodsReceive/Delete/' + data[4] + '""class=""btn btn-danger"">Delete</a>';
+                    }
+                }]"
+})

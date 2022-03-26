@@ -20,9 +20,9 @@ namespace beaverNet.POS.WebApp.Controllers
         }
 
         // GET: Customer
-        public async Task<IActionResult> Index()
+        public Task<IActionResult> Index()
         {
-            return View(await _context.Customer.ToListAsync());
+            return Task.FromResult(View() as IActionResult);
         }
 
         // GET: Customer/Details/5

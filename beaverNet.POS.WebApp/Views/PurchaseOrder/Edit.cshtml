@@ -29,9 +29,15 @@
                 <span asp-validation-for="PurchaseOrderDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="VendorId" class="control-label"></label>
-                <select asp-for="VendorId" class="form-control" asp-items="ViewBag.VendorId"></select>
-                <span asp-validation-for="VendorId" class="text-danger"></span>
+                <label class="control-label">Supplier</label>
+                @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/vendor",
+                    FieldIndex = 0,
+                    FieldName = "VendorId",
+                    FieldLabel = "Supplier",
+                    FieldDisplayName = "Name"
+                })
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" /> | <a asp-action="Index">Back to List</a>
@@ -75,7 +81,14 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="control-label">Product</label>
-                            <select class="form-control" id="ProductId" asp-items="ViewBag.ProductId"></select>
+                            @await Html.PartialAsync("_Dropdown", new SearchModel()
+                            {
+                                ApiUrl = "/api/Product",
+                                FieldIndex = 0,
+                                FieldName = "ProductId",
+                                FieldLabel = "Product",
+                                FieldDisplayName = "Name"
+                            })
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -171,7 +184,7 @@
             var price = $("#Price").val();
             axios.post('/api/PurchaseOrderLine', {
                 "PurchaseOrderId": $("#PurchaseOrderId").val(),
-                "ProductId": $("#ProductId").val(),
+                "ProductId": $("[name=ProductId]").val(),
                 "Quantity": quantity,
                 "Price": price,
                 "SubTotal": quantity * price,

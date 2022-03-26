@@ -102,6 +102,10 @@ namespace beaverNet.POS.WebApp.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<SalesOrderLine>> PostSalesOrderLine(SalesOrderLine salesOrderLine)
         {
+            var product = await _context.Product.FirstOrDefaultAsync(x => x.ProductId == salesOrderLine.ProductId);
+            salesOrderLine.SubTotal = salesOrderLine.Quantity * product.PriceSell;
+            salesOrderLine.Discount = salesOrderLine.Quantity * (product.PriceSell - salesOrderLine.Price) * -1;
+            salesOrderLine.Total = salesOrderLine.SubTotal + salesOrderLine.Discount;
             _context.SalesOrderLine.Add(salesOrderLine);
 
             SalesOrder salesOrder = _context.SalesOrder.Where(x => x.SalesOrderId.Equals(salesOrderLine.SalesOrderId)).FirstOrDefault();
@@ -117,7 +121,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
             _context.InvenTran.Add(tran);
 
             await _context.SaveChangesAsync();
-            
+
             return CreatedAtAction("GetSalesOrderLine", new { id = salesOrderLine.SalesOrderLineId }, salesOrderLine);
         }
 

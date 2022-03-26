@@ -29,9 +29,16 @@
                 <span asp-validation-for="GoodsReceiveDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PurchaseOrderId" class="control-label"></label>
-                <input class="form-control" value="@Model.PurchaseOrder.Number" readonly/>
-                <span asp-validation-for="PurchaseOrderId" class="text-danger"></span>
+                <label class="control-label">Purchase Order</label>
+                @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/PurchaseOrder",
+                    FieldIndex = 0,
+                    FieldName = "Number",
+                    FieldLabel = Model.PurchaseOrder.Number,
+                    FieldValue = Model.PurchaseOrderId.ToString(),
+                    FieldDisplayName = "Number"
+                })
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" /> | <a asp-action="Index">Back to List</a>

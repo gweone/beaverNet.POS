@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Point Of Sales</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
     <!--datatables.net-->
@@ -19,7 +19,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/img/beaverNetLogo40px.png" />beaverNet</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Klinik Aisyah</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -29,32 +29,44 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Catalogs
+                                Katalog
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Customer" asp-action="Index">Customer</a>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Vendor" asp-action="Index">Vendor</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Customer" asp-action="Index">Pelanggan</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Vendor" asp-action="Index">Supplier</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Products" asp-action="Index">Product</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Product" asp-action="Index">Produk</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Orders
+                                Produk
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="PurchaseOrder" asp-action="Index">Purchase Order</a>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="GoodsReceive" asp-action="Index">Vendor</a>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="Index">Sales Order</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="PurchaseOrder" asp-action="Index">Pembelian</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="GoodsReceive" asp-action="Index">Supplier</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="InvenTran" asp-action="Index">Transaksi Produk</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Management
+                                Penjualan
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="Index">Penjualan</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="POS">Point Of Sales</a>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="InvenTran" asp-action="Index">InvenTrans</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Laporan
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="Index">Stock Produk</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="Purchase">Pembelian</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="ProductSales">Penjualan Produk</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="TimeSales">Penjualan Berdasarkan Waktu</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="CustomerSales">Penjualan Berdasarkan Pelanggan</a>
                             </div>
                         </li>
                     </ul>
@@ -70,8 +82,7 @@
     </div>
     <footer class="border-top footer text-muted">
         <div class="container">
-            <partial name="_BuyMeACoffee">
-                &copy; 2020 - beaverNet -
+                &copy; 2022 - Klinik Aisyah -
                 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
@@ -114,5 +125,6 @@
         </script> 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
+    @Html.RenderPartialSectionScripts()
 </body>
 </html>

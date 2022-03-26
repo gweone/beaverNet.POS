@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using beaverNet.POS.WebApp.Models;
+using System.Linq.Expressions;
 
 namespace beaverNet.POS.WebApp.Controllers.Api
 {
@@ -25,9 +27,11 @@ namespace beaverNet.POS.WebApp.Controllers.Api
 
         // GET: api/SalesOrder
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SalesOrder>>> GetSalesOrder()
+        public async Task<ActionResult<IEnumerable<SalesOrder>>> GetSalesOrder([FromQuery] SearchCriteria criteria)
         {
-            return await _context.SalesOrder.ToListAsync();
+            if (criteria == null || criteria.columns == null)
+                return await _context.SalesOrder.ToListAsync();
+            return Ok(criteria.Apply<SalesOrder>(_context, new Expression<Func<SalesOrder, object>>[] { x => x.Customer }, "SalesOrderId"));
         }
 
         // GET: api/SalesOrder/5

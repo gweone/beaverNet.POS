@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using System.Linq.Expressions;
+using beaverNet.POS.WebApp.Models;
 
 namespace beaverNet.POS.WebApp.Controllers.Api
 {
@@ -23,9 +25,11 @@ namespace beaverNet.POS.WebApp.Controllers.Api
 
         // GET: api/InvenTran
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InvenTran>>> GetInvenTran()
+        public async Task<ActionResult<IEnumerable<InvenTran>>> GetInvenTran([FromQuery] SearchCriteria criteria)
         {
-            return await _context.InvenTran.ToListAsync();
+            if (criteria == null || criteria.columns == null)
+                return await _context.InvenTran.ToListAsync();
+            return Ok(criteria.Apply<InvenTran>(_context, new Expression<Func<InvenTran, object>>[] { x => x.Product }, "InvenTranId"));
         }
 
         // GET: api/InvenTran/5

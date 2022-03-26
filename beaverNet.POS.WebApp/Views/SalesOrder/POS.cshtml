@@ -4,21 +4,53 @@
 }
 
 <h1>POS - Point of sales</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <button onclick="initiateNewPOSOrder()" class="btn btn-block btn-success">Transaksi Baru</button>
+        <br/>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-5">
-        <table class="table" id="productLine" style="width:100%">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Product</th>
-                    <th scope="col">Price (Sell)</th>
-                    <th scope="col">Price (Purchase)</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-        </table>
+        @await Html.PartialAsync("_DataTables", new SearchModel()
+   {
+       ApiUrl = Url.Content("/api/product"),
+       Columns = new[] {
+        new SearchColumn(){
+            name = "Name",
+            displayname = "Product"
+        },
+        new SearchColumn(){
+            name = "PriceSell",
+            displayname = "PriceSell",
+            searchable = false
+        },
+        new SearchColumn(){
+            name = "PricePurchase",
+            displayname = "PricePurchase",
+            searchable = false
+        },
+        new SearchColumn(){
+            searchable = false,
+            orderable = false,
+            displayname = "Tindakan"
+        }
+    },
+       ColumnDefinition = @"'columnDefs': [{
+                    'targets': -1,
+                    'data': null,
+                    'orderable': false,
+                    'searchable':false,
+                    'render': function (data, type, row, meta) {
+                        return '<button onclick=""selectProduct(this)"" data-id=""' + data[3] + '"" class=""btn btn-info"">Pilih</button>';
+                    }
+                }]"
+   })
     </div>
     <div class="col-md-7">
-        <div class="row">
+        <div class="row" id="posform">
             <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label">Order Number #</label>
@@ -46,6 +78,12 @@
                 </div>
             </div>
         </div>
+        <div class="row btn-posform d-none">
+            <div class="col-md-4">
+                <button onclick="posLineInsert()" class="btn btn-block btn-warning">Tambah</button>
+                <br/>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <table class="table" id="posLine" style="width:100%">
@@ -67,31 +105,29 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label class="control-label">Total</label>
-                    <input class="form-control" id="total" readonly />
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input class="form-control" id="total" readonly />
+                    </div>                    
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    <label class="control-label">Payment</label>
-                    <input type="number" class="form-control" id="payment" />
+                    <label class="control-label">Pembayaran</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input type="number" class="form-control" id="payment" />
+                    </div>                    
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    <label class="control-label">Change</label>
-                    <input class="form-control" id="change" readonly />
+                    <label class="control-label">Kembali</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Rp</span>
+                        <input class="form-control" id="change" readonly />
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <button onclick="initiateNewPOSOrder()" class="btn btn-block btn-success">New</button>
-            </div>
-            <div class="col-md-4">
-                <button onclick="posLineInsert()" class="btn btn-block btn-warning">Insert</button>
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-block btn-danger">Cancel</button>
             </div>
         </div>
     </div>
@@ -108,11 +144,9 @@
             background: white;
         }
 
-        .nmpd-grid > tbody > tr > td {
-            border: none;
-        }
-
-       
+            .nmpd-grid > tbody > tr > td {
+                border: none;
+            }
     </style>
 }
 
@@ -131,15 +165,17 @@
             //numpad
             $('#quantity').numpad();
             $('#price').numpad();
-            $('#payment').numpad();
+            $('#payment').on('change', function () {
+                var total = parseInt($('#total').val());
+                var payment = parseInt($('#payment').val());
+                $('#change').val(total - payment);
+            }).numpad();
 
-            //datatables
-            initProductLine();
         });
 
         function initPosLine() {
             var salesOrderId = $("#salesOrderId").val();
-
+            $('.btn-posform').removeClass('d-none');
             $("#posLine").DataTable({
                 "destroy": true,
                 "ajax": {
@@ -152,11 +188,60 @@
                 },
                 "columns": [
                     { "data": "product.name" },
+                    {
+                        "data": "price",
+                        "render": function (data) {
+                            var formatter = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+
+                                // These options are needed to round to whole numbers if that's what you want.
+                                minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+                            });
+                            return formatter.format(data);
+                        } },
                     { "data": "quantity" },
-                    { "data": "price" },
-                    { "data": "subTotal" },
-                    { "data": "discount" },
-                    { "data": "total" },
+                    {
+                        "data": "subTotal",
+                        "render": function (data) {
+                            var formatter = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+
+                                // These options are needed to round to whole numbers if that's what you want.
+                                minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+                            });
+                            return formatter.format(data);
+                        } },
+                    {
+                        "data": "discount",
+                        "render": function (data) {
+                            var formatter = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+
+                                // These options are needed to round to whole numbers if that's what you want.
+                                minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+                            });
+                            return formatter.format(data);
+                        } },
+                    {
+                        "data": "total",
+                        "render": function (data) {
+                            var formatter = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+
+                                // These options are needed to round to whole numbers if that's what you want.
+                                minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+                            });
+                            return formatter.format(data);
+                        }
+                    },
                     {
                         "data": "salesOrderLineId",
                         "render": function (data) {
@@ -171,66 +256,36 @@
                 "lengthChange": false,
                 "bFilter": false,
                 "paging": false,
-                "info": false
+                "info": false,
+                "createdRow": function (row, data, dataIndex) {
+                    $('#total').val(data['total'] + parseInt($('#total').val()));
+                }
             });
 
             return false;
         }
 
-        function initProductLine() {
-
-            $("#productLine").DataTable({
-                "ajax": {
-                    "type": "GET",
-                    "url": "/api/Product",
-                    "dataSrc": function (data) {
-                        return data;
-                    }
-                },
-                "columns": [
-                    { "data": "name" },
-                    { "data": "priceSell" },
-                    { "data": "pricePurchase" },
-                    {
-                        "data": "productId",
-                        "render": function (data) {
-                            var btnSelect = '<button onclick="selectProduct(\'' + data +'\')" class="btn btn-info">Select</button>';
-                            return btnSelect;
-                        }
-                    }
-                ],
-                "language": {
-                    "emptyTable": "data is empty."
-                },
-                "lengthChange": false,
-                "pageLength": 5,
-                "bFilter": false,
-                "paging": true,
-                "info": false
-            });
-
-            return false;
-        }
-
-        function selectProduct(productId) {
+        function selectProduct(el) {
+            var productId = $(el).data('id');
             var salesOrderNumber = $("#orderNumber").val();
             if (salesOrderNumber) {
 
                 axios.get('/api/Product/' + productId
                 )
-                .then(function (response) {
-                    $("#productId").val(response.data.productId);
-                    $("#product").val(response.data.name);
-                    $("#price").val(response.data.priceSell);
-                    $("#quantity").val(1);
-                    toastr.success(response.data.name + ' is selected.', 'Success')
-                })
-                .catch(function (error) {
+                    .then(function (response) {
+                        $("#productId").val(response.data.productId);
+                        $("#product").val(response.data.name);
+                        $("#price").val(response.data.priceSell);
+                        $("#quantity").val(1);
+                        toastr.success(response.data.name + ' is selected.', 'Success');
+                        scrollTo($('#posform').position().left, $('#posform').position().top);
+                    })
+                    .catch(function (error) {
 
-                })
-                .then(function () {
+                    })
+                    .then(function () {
 
-                });
+                    });
 
             } else {
                 toastr.error('Order Number # empty. Please create new order first.', 'Error')
@@ -242,18 +297,19 @@
         function initiateNewPOSOrder() {
             axios.post('/api/SalesOrder/InitiateNewPOSTrans'
             )
-            .then(function (response) {
-                $("#orderNumber").val(response.data.number);
-                $("#salesOrderId").val(response.data.salesOrderId);
-                initPosLine();
-                toastr.success('New order created with number: ' + response.data.number, 'Success')
-            })
-            .catch(function (error) {
+                .then(function (response) {
+                    $("#orderNumber").val(response.data.number);
+                    $("#salesOrderId").val(response.data.salesOrderId);
+                    initPosLine();
+                    toastr.success('New order created with number: ' + response.data.number, 'Success');
 
-            })
-            .then(function () {
+                })
+                .catch(function (error) {
 
-            });
+                })
+                .then(function () {
+
+                });
             return false;
         }
 
@@ -264,17 +320,18 @@
                 "Quantity": $("#quantity").val(),
                 "Price": $("#price").val()
             })
-            .then(function (response) {
-                var product = $("#product").val();
-                $("#posLine").DataTable().ajax.reload();
-                toastr.success('Insert POS line success for item: ' + product, 'Success');
-            })
-            .catch(function (error) {
+                .then(function (response) {
+                    var product = $("#product").val();
+                    $("#total").val(0);
+                    $("#posLine").DataTable().ajax.reload();
+                    toastr.success('Insert POS line success for item: ' + product, 'Success');
+                })
+                .catch(function (error) {
 
-            })
-            .then(function () {
+                })
+                .then(function () {
 
-            });
+                });
             return false;
         }
 

@@ -1,0 +1,61 @@
+﻿@model SearchModel
+@{
+    var grid = Model.Id;
+}
+
+<table class="table" id="@grid">
+    <thead>
+        <tr>
+            @foreach (var item in Model.Columns)
+            {
+                <th @foreach (var data in item.GetType().GetProperties()) { var value = data.GetValue(item); if (value == null) continue; if (value.GetType() == typeof(bool)) { value = (bool)value ? "true" : "false"; }  @(string.Format(" data-{0}={1}", data.Name, value))  }>
+                    @item.displayname
+                </th>
+            }
+        </tr>
+    </thead>
+</table>
+
+@Html.PartialSectionScripts(
+    @<script>
+        $(document).ready(function () {
+            $('#@grid').DataTable({
+                "serverSide": true,
+                "processing": true,
+                "paging": true,
+                "searching": { "regex": true },
+                ajax: {
+                    url: '@Model.ApiUrl',
+                    data: function (d) {
+                        for (k in d.order) {
+                            d.order[k].column = d.columns[d.order[k].column].name;
+                        }
+                        var q = Object.fromEntries(new URLSearchParams($.param(d)))
+                        var params = Object.keys(q).map(function (k, v) {
+                            var n = k.replace(/\]\[/i, '].').replace(/\]\[/g, '.').replace('search[', 'search.')
+                            if (k.indexOf(']') > 0) {
+                                n = n.slice(0, -1);
+                            }
+                            return { name: n, value: q[k] };
+                        });
+                        @Html.Raw(Model.AjaxData)
+                        return params;
+                    }
+                },
+                @Html.Raw(Model.ColumnDefinition)
+            });
+        });
+
+        function displayCurency(data) {
+            var formatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+
+                // These options are needed to round to whole numbers if that's what you want.
+                minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+            });
+            return formatter.format(data);
+        }
+</script>
+)

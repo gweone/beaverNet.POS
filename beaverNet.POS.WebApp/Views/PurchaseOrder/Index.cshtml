@@ -1,62 +1,91 @@
-﻿@model IEnumerable<beaverNet.POS.WebApp.Models.POS.PurchaseOrder>
-
-@{
-    ViewData["Title"] = "Purchase Order";
+﻿@{
+    ViewData["Title"] = "Pembelian Barang";
+    var grid = Guid.NewGuid();
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a class="btn btn-secondary" data-toggle="collapse" href=".form-filter" role="button" aria-expanded="false" aria-controls=".form-filter">
+        Filter
+    </a>
 </p>
-<table class="table" id="grid">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Number)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PurchaseOrderDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Vendor)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PurchaseOrderDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Vendor.Name)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.PurchaseOrderId" class="btn btn-warning">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.PurchaseOrderId" class="btn btn-success">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.PurchaseOrderId" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 
-@section Scripts{
-    <script>
-        $(document).ready(function () {
-            $('#grid').DataTable();
-        });
-    </script>
-}
+<form class="row g-3 collapse form-filter">
+    <div class="col-md-3">
+        <label class="form-label">Supplier</label>
+        @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/Vendor",
+                    FieldIndex = 0,
+                    FieldName = "VendorId",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Name"
+                })
+    </div>
+    <div class="col-auto">
+        <label for="inputPassword4" class="form-label">Tanggal Pembelian</label>
+        <div class="input-group mb-3">
+            <input type="date" class="form-control" name="StartDate" placeholder="Tanggal Mulai">
+            <span class="input-group-text">Sampai</span>
+            <input type="date" class="form-control" name="EndDate" placeholder="Sampai Tanggal">
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="button" onclick="$('#@grid').DataTable().ajax.reload()" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+<br />
+@await Html.PartialAsync("_DataTables", new SearchModel()
+{
+    Id = grid,
+    ApiUrl = Url.Content("api/purchaseorder"),
+    Columns = new[] {
+        new SearchColumn(){
+            name = "Number",
+            displayname = "Number"
+        },
+        new SearchColumn(){
+            name = "Description",
+            displayname = "Description"
+        },
+        new SearchColumn(){
+            name = "PurchaseOrderDate",
+            displayname = "PurchaseOrderDate",
+            searchable = false
+        },
+        new SearchColumn(){
+            name = "Vendor.Name",
+            displayname = "Vendor Name"
+        },
+        new SearchColumn(){
+            searchable = false,
+            orderable = false,
+            displayname = "Tindakan"
+        }
+    },
+    AjaxData = @"params.push({name : 'filters[0].column', value :'VendorId' });
+                 params.push({name : 'filters[0].value', value : $('[name=VendorId]').val() });
+                 params.push({name : 'filters[0].condition', value : 'Equal' });
+
+                 params.push({name : 'filters[1].column', value :'PurchaseOrderDate' });
+                 params.push({name : 'filters[1].value', value : $('[name=StartDate]').val() });
+                 params.push({name : 'filters[1].condition', value : 'GreaterThanOrEqual' });
+
+                 params.push({name : 'filters[2].column', value :'PurchaseOrderDate' });
+                 params.push({name : 'filters[2].value', value : $('[name=EndDate]').val() });
+                 params.push({name : 'filters[2].condition', value : 'LessThanOrEqual' });
+                ",
+    ColumnDefinition = @"'columnDefs': [{
+                    'targets': -1,
+                    'data': null,
+                    'orderable': false,
+                    'searchable':false,
+                    'render': function (data, type, row, meta) {
+                        return '<a href=""/purchaseorder/Edit/' + data[4] + '""class=""btn btn-warning"">Edit</a>' +
+                               '<a href=""/purchaseorder/Details/' + data[4] + '""class=""btn btn-success"">Details</a>' +
+                               '<a href=""/purchaseorder/Delete/' + data[4] + '""class=""btn btn-danger"">Delete</a>';
+                    }
+                }]"
+})

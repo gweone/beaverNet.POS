@@ -20,9 +20,9 @@ namespace beaverNet.POS.WebApp.Controllers
         }
 
         // GET: InvenTran
-        public async Task<IActionResult> Index()
+        public Task<IActionResult> Index()
         {
-            return View(await _context.InvenTran.Include(x => x.Product).ToListAsync());
+            return Task.FromResult(View() as IActionResult);
         }
 
         // GET: InvenTran/Details/5

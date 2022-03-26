@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "Laporan Penjualan per Harga Barang";
+    var grid = Guid.NewGuid();
+}
+
+<h1>@ViewData["Title"]</h1>
+<form class="row g-3 form-filter">
+    <div class="col-md-3">
+        <label class="form-label">Barang</label>
+        @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/Product",
+                    FieldIndex = 0,
+                    FieldName = "ProductId",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Name"
+                })
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Pelanggan</label>
+        @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/Customer",
+                    FieldIndex = 0,
+                    FieldName = "CustomerId",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Name"
+                })
+    </div>
+    <div class="col-auto">
+        <label for="inputPassword4" class="form-label">Tanggal Transaksi</label>
+        <div class="input-group mb-3">
+            <input type="date" class="form-control" name="StartDate" placeholder="Tanggal Mulai">
+            <span class="input-group-text">Sampai</span>
+            <input type="date" class="form-control" name="EndDate" placeholder="Sampai Tanggal">
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="button" onclick="$('#@grid').DataTable().ajax.reload()" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+<br />
+@await Html.PartialAsync("_DataTables", new SearchModel()
+{
+    Id = grid,
+    ApiUrl = Url.Content("/api/Report/Sales"),
+    Columns = new[] {
+        new SearchColumn(){
+            name = "Product",
+            displayname = "Nama Barang"
+        },
+        new SearchColumn(){
+            name = "QtySales",
+            displayname = "Total Penjualan",
+            searchable = false
+        },
+
+        new SearchColumn(){
+            name = "TotalSales",
+            displayname = "Nilai Penjualan",
+            searchable = false
+        }
+    },
+    AjaxData = @"params.push({name : 'filters[0].column', value :'SalesOrderDate' });
+                 params.push({name : 'filters[0].value', value : $('[name=StartDate]').val() });
+                 params.push({name : 'filters[0].condition', value : 'GreaterThanOrEqual' });
+
+                 params.push({name : 'filters[1].column', value :'SalesOrderDate' });
+                 params.push({name : 'filters[1].value', value : $('[name=EndDate]').val() });
+                 params.push({name : 'filters[1].condition', value : 'LessThanOrEqual' });
+
+                 params.push({name : 'filters[2].column', value :'CustomerId' });
+                 params.push({name : 'filters[2].value', value : $('[name=CustomerId]').val() });
+                 params.push({name : 'filters[2].condition', value : 'Equal' });
+
+                 params.push({name : 'filters[3].column', value :'ProductId' });
+                 params.push({name : 'filters[3].value', value : $('[name=ProductId]').val() });
+                 params.push({name : 'filters[3].condition', value : 'Equal' });
+                ",
+    ColumnDefinition = @"'columnDefs': [
+                                         {
+                                            'targets': 2,
+                                            'render': function (data, type, row, meta) {
+                                                return displayCurency(row[2]);
+                                            }
+                                         }]"
+})

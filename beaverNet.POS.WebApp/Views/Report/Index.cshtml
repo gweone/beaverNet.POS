@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Laporan Stock Barang";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@await Html.PartialAsync("_DataTables", new SearchModel()
+{
+    ApiUrl = Url.Content("/api/Report/Stocks"),
+    Columns = new[] {
+        new SearchColumn(){
+            name = "Product",
+            displayname = "Nama Barang"
+        },
+        new SearchColumn(){
+            name = "Quantity",
+            displayname = "Stock",
+            searchable = false
+        },
+    }
+})

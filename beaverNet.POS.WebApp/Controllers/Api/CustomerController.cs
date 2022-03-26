@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using beaverNet.POS.WebApp.Models;
 
 namespace beaverNet.POS.WebApp.Controllers.Api
 {
@@ -23,9 +24,11 @@ namespace beaverNet.POS.WebApp.Controllers.Api
 
         // GET: api/Customer
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer()
+        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer([FromQuery] SearchCriteria criteria)
         {
-            return await _context.Customer.ToListAsync();
+            if (criteria == null || criteria.columns == null)
+                return await _context.Customer.ToListAsync();
+            return Ok(criteria.Apply<Customer>(_context, "CustomerId"));
         }
 
         // GET: api/Customer/5

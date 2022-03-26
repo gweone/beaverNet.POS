@@ -23,10 +23,9 @@ namespace beaverNet.POS.WebApp.Controllers
         }
 
         // GET: GoodsReceive
-        public async Task<IActionResult> Index()
+        public Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.GoodsReceive.Include(g => g.PurchaseOrder);
-            return View(await applicationDbContext.ToListAsync());
+            return Task.FromResult(View() as IActionResult);
         }
 
         // GET: GoodsReceive/Details/5

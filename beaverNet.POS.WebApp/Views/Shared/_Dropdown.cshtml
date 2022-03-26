@@ -1,0 +1,71 @@
+﻿@model SearchModel
+@{
+    var grid = Guid.NewGuid();
+}
+
+<div class="dropdown">
+    <button class="btn btn-info dropdown-toggle" type="button" data-toggle="dropdown">
+        <span class="@grid-label">@Model.FieldLabel</span>
+        <span class="caret"></span>
+    </button>
+    <div class="dropdown-menu">
+        <input type="hidden" name="@Model.FieldName" class="@grid-input" />
+        <input type="search" name="search.value" class="form-control @grid-filter" autocomplete="false" placeholder="Type to filter...">
+        <ul class="list-unstyled @grid-result">
+
+        </ul>
+    </div>
+</div>
+
+@Html.PartialSectionScripts(
+    @<script>
+        $(document).ready(function () {
+            $('.@grid-filter')
+                .on('input', function () {
+                    clearTimeout(this.delay);
+                    this.delay = setTimeout(fnSearch.bind(this), 600);
+                });
+            var fnSearch = function () {
+                var keyword = this.value;
+                var actionUrl = '@Model.ApiUrl';
+                var d = {
+                    columns: [{ name: '@Model.FieldDisplayName' }],
+                    search: {
+                        value : keyword
+                    },
+                    start: 0,
+                    length: 12
+                };
+                var q = Object.fromEntries(new URLSearchParams($.param(d)))
+                var params = Object.keys(q).map(function (k, v) {
+                    var n = k.replace(/\]\[/i, '].').replace(/\]\[/g, '.').replace('search[', 'search.')
+                    if (k.indexOf(']') > 0) {
+                        n = n.slice(0, -1);
+                    }
+                    return { name: n, value: q[k] };
+                });
+                $.ajax({
+                    type: "GET",
+                    url: actionUrl,
+                    data: params,
+                    success: function (result) {
+                        $('.@grid-result').html('');
+                        for (var k in result.data) {
+                            let v = result.data[k];
+                            var $el = $('<a class="dropdown-item d-flex align-items-center gap-2 py-2">')
+                                .html(v[@Model.FieldIndex])
+                                .on('click', function () {
+                                     $('.@grid-input').val($(this).data('id'));
+                                     $('.@grid-label').html($(this).html());
+                                })
+                                .data('id', v[v.length - 1]);
+                            $('.@grid-result').append($('<li>').append($el));
+                        }
+
+                    }
+                });
+            };
+            fnSearch.bind({ value : '' })();
+        });
+</script>
+)

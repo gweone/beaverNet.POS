@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using beaverNet.POS.WebApp.Services.POS;
 using beaverNet.POS.WebApp.Email;
+using Microsoft.OpenApi.Models;
 
 namespace beaverNet.POS.WebApp
 {
@@ -65,14 +66,21 @@ namespace beaverNet.POS.WebApp
             //    go.ClientId = "688106088890-pov7l0qi48ep9nhb4idiihhig97mc97a.apps.googleusercontent.com";
             //    go.ClientSecret = "AZGG3CIboE3UAxf1AgdjX9pF";
             //});
-           // services.AddAuthentication().AddGithub( gt =>
+            // services.AddAuthentication().AddGithub( gt =>
             //  {
-          //        gt.ClientId = "428f22bee79c351e2c1a";
-           //       gt.ClientSecret = "a755fb0d4a0c0e1950bddd442dd867de08819535";
-        //      }
+            //        gt.ClientId = "428f22bee79c351e2c1a";
+            //       gt.ClientSecret = "a755fb0d4a0c0e1950bddd442dd867de08819535";
+            //      }
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            });
 
             services.Configure<EmailOptions>(Configuration);
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson(x => {
+                x.SerializerSettings.DateFormatString = "yyyy-MM-dd";
+            });
             services.AddRazorPages();
         }
 
@@ -98,6 +106,15 @@ namespace beaverNet.POS.WebApp
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
 
             app.UseEndpoints(endpoints =>
             {
