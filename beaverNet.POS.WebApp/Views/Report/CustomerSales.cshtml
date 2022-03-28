@@ -11,7 +11,7 @@
                 {
                     ApiUrl = "/api/Customer",
                     FieldIndex = 0,
-                    FieldName = "CustomerId",
+                    FieldName = "CustomerId,Email",
                     FieldLabel = "Pilih",
                     FieldDisplayName = "Name"
                 })
@@ -47,8 +47,7 @@
     Columns = new[] {
         new SearchColumn(){
             name = "CustomerName",
-            displayname = "Pelanggan",
-            searchable = false
+            displayname = "Pelanggan"
         },
         new SearchColumn(){
             name = "TotalSales",

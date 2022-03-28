@@ -32,15 +32,15 @@
                                 Katalog
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Customer" asp-action="Index">Pelanggan</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Customer" asp-action="Index">Pasien</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Vendor" asp-action="Index">Supplier</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Product" asp-action="Index">Produk</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Product" asp-action="Index">Daftar Obat dan Jasa</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Produk
+                                Management Produk
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="PurchaseOrder" asp-action="Index">Pembelian</a>
@@ -53,7 +53,7 @@
                                 Penjualan
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="Index">Penjualan</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="Index">Konsultasi</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="SalesOrder" asp-action="POS">Point Of Sales</a>
                             </div>
                         </li>
@@ -62,9 +62,9 @@
                                 Laporan
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="Index">Stock Produk</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="Index">Stock Obat</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="Purchase">Pembelian</a>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="ProductSales">Penjualan Produk</a>
+                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="ProductSales">Penjualan</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="TimeSales">Penjualan Berdasarkan Waktu</a>
                                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Report" asp-action="CustomerSales">Penjualan Berdasarkan Pelanggan</a>
                             </div>
@@ -121,7 +121,15 @@
     appId: "1:641614118925:web:11183895f8b698debf5544"
   };
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+
+    $(document).ready(function () {
+        setTimeout(500, function () {
+            $('body>div').filter(function () {
+                return $(this).text().toLowerCase().indexOf("somee") >= 0;
+            }).remove()
+        });
+    });
         </script> 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)

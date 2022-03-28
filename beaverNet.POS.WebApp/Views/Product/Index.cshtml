@@ -5,36 +5,13 @@
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Buat Baru</a>
+    <a asp-action="PriceCalculation" class="btn btn-info">Hitung Ulang Harga Beli</a>
 </p>
 @await Html.PartialAsync("_DataTables", new SearchModel()
 {
     ApiUrl = Url.Content("api/product"),
-    Columns = new[] {
-        new SearchColumn(){
-            name = "Name",
-            displayname = "Name"
-        },
-        new SearchColumn(){
-            name = "Description",
-            displayname = "Description"
-        },
-        new SearchColumn(){
-            name = "PriceSell",
-            displayname = "PriceSell",
-            searchable = false
-        },
-        new SearchColumn(){
-            name = "PricePurchase",
-            displayname = "PricePurchase",
-            searchable = false
-        },
-        new SearchColumn(){
-            searchable = false,
-            orderable = false,
-            displayname = "Tindakan"
-        }
-    },
+    Columns = ModelHelper.GetSearchColumnsWithAction<Product>(),
     ColumnDefinition = @"'columnDefs': [{
                     'targets': -1,
                     'data': null,
@@ -43,6 +20,7 @@
                     'render': function (data, type, row, meta) {
                         return '<a href=""/product/Edit/' + data[4] + '""class=""btn btn-warning"">Edit</a>' +
                                '<a href=""/product/Details/' + data[4] + '""class=""btn btn-success"">Details</a>' +
+                               '<a href=""/product/PriceCalculation/' + data[4] + '""class=""btn btn-info"">Hitung Ulang </a>' +
                                '<a href=""/product/Delete/' + data[4] + '""class=""btn btn-danger"">Delete</a>';
                     }
                 }]"

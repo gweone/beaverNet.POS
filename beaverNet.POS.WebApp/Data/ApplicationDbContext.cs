@@ -25,6 +25,7 @@ namespace beaverNet.POS.WebApp.Data
         public DbSet<beaverNet.POS.WebApp.Models.POS.PurchaseOrderLine> PurchaseOrderLine { get; set; }
         public DbSet<beaverNet.POS.WebApp.Models.POS.SalesOrderLine> SalesOrderLine { get; set; }
         public DbSet<beaverNet.POS.WebApp.Models.POS.GoodsReceiveLine> GoodsReceiveLine { get; set; }
+        public DbSet<beaverNet.POS.WebApp.Models.POS.MedicalRecord> MedicalRecord { get; set; }
 
         public string DatePart(string datePartArg, DateTimeOffset? arg1 ) => throw new InvalidOperationException($"{nameof(DatePart)} cannot be called client side.");
 

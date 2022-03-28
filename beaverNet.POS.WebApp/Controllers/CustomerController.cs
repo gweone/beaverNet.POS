@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using Microsoft.AspNetCore.Authorization;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
+    [Authorize]
     public class CustomerController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -46,6 +48,14 @@ namespace beaverNet.POS.WebApp.Controllers
         // GET: Customer/Create
         public IActionResult Create()
         {
+            ViewData["Address2"] = new SelectList(new[] { new SelectListItem(){
+                    Text = "Laki-Laki",
+                    Value = "Laki-Laki"
+                }, new SelectListItem(){
+                    Text = "Perempuan",
+                    Value = "Perempuan"
+                }}, "Value", "Text");
+
             return View();
         }
 
@@ -54,7 +64,7 @@ namespace beaverNet.POS.WebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,Name,Description,Phone,Email,Address,Address2")] Customer customer)
+        public async Task<IActionResult> Create([Bind("CustomerId,Name,Description,Phone,Email,Address,Address2,DateofBirthday")] Customer customer)
         {
             if (ModelState.IsValid)
             {
@@ -87,7 +97,7 @@ namespace beaverNet.POS.WebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("CustomerId,Name,Description,Phone,Email,Address,Address2")] Customer customer)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CustomerId,Name,Description,Phone,Email,Address,Address2,DateofBirthday")] Customer customer)
         {
             if (id != customer.CustomerId)
             {

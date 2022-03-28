@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,9 +12,11 @@ namespace beaverNet.POS.WebApp.Models.POS
     {
         public Guid PurchaseOrderId { get; set; }
         [Required]
+        [DisplayName("No. Transaksi")]
         public string Number { get; set; }
         public string Description { get; set; }
         public DateTimeOffset? PurchaseOrderDate { get; set; } = DateTime.Now;
+        [DisplayName("Supplier")] 
         public Guid VendorId { get; set; }
         public Vendor Vendor { get; set; }
         public virtual List<PurchaseOrderLine> PurchaseOrderLine { get; set; } = new List<PurchaseOrderLine>();

@@ -164,6 +164,9 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                      customer.CustomerId
                                  };
 
+            var recordsTotal = salesQueryAble.GroupBy(x => x.ProductId)
+                                              .Select(x => x.Key).Count();
+
             salesQueryAble = criteria.ApplyFilters(salesQueryAble);
 
             var gpSales = salesQueryAble.GroupBy(x => x.ProductId)
@@ -184,7 +187,6 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                  sales.TotalSales
                              });
 
-            var recordsTotal = _context.Product.Count();
             var recordsFiltered = recordsTotal;
             if (criteria.search != null || criteria.filters != null)
                 recordsFiltered = queryable.Count();
@@ -209,21 +211,23 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                   {
                                       pline.ProductId,
                                       sales.Number,
-                                      sales.SalesOrderDate,
+                                      Grouped = sales.SalesOrderDate,
                                       Quantity = pline.Quantity,
                                       Total = (int)pline.Total,
-                                      customer.CustomerId
+                                      customer.CustomerId,
+                                      SalesOrderDate = _context.DatePart(periode, sales.SalesOrderDate)
                                   });
+
+            var recordsTotal = salesQueryAble.GroupBy(x => x.SalesOrderDate)
+                                       .Select(x => x.Key).Count();
+
             salesQueryAble = criteria.ApplyFilters(salesQueryAble);
-            var queryable = salesQueryAble.GroupBy(x => _context.DatePart(periode, x.SalesOrderDate))
+            var queryable = salesQueryAble.GroupBy(x => x.SalesOrderDate)
                                               .Select(x => new
                                               {
                                                   SalesOrderDate = x.Key,
                                                   TotalSales = x.Sum(y => y.Total)
                                               });
-
-            var recordsTotal = _context.SalesOrder.GroupBy(x => _context.DatePart(periode, x.SalesOrderDate))
-                                       .Select(x => x.Key).Count();
             var recordsFiltered = recordsTotal;
             if (criteria.search != null || criteria.filters != null)
                 recordsFiltered = queryable.Count();
@@ -254,6 +258,8 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                       customer.CustomerId,
                                       CustomerName = customer.Name,
                                   });
+            var recordsTotal = salesQueryAble.GroupBy(x => x.SalesOrderDate)
+                                       .Select(x => x.Key).Count();
             salesQueryAble = criteria.ApplyFilters(salesQueryAble);
             var queryable = salesQueryAble.GroupBy(x => x.CustomerName)
                                               .Select(x => new
@@ -262,8 +268,6 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                                   TotalSales = x.Sum(y => y.Total)
                                               });
 
-            var recordsTotal = _context.SalesOrder.GroupBy(x => x.SalesOrderDate)
-                                       .Select(x => x.Key).Count();
             var recordsFiltered = recordsTotal;
             if (criteria.search != null || criteria.filters != null)
                 recordsFiltered = queryable.Count();

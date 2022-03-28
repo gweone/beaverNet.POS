@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
 using beaverNet.POS.WebApp.Services.POS;
+using Microsoft.AspNetCore.Authorization;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
+    [Authorize]
     public class PurchaseOrderController : Controller
     {
         private readonly ApplicationDbContext _context;

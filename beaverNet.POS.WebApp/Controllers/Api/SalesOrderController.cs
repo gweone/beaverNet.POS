@@ -9,6 +9,7 @@ using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
 using beaverNet.POS.WebApp.Models;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Configuration;
 
 namespace beaverNet.POS.WebApp.Controllers.Api
 {
@@ -18,11 +19,13 @@ namespace beaverNet.POS.WebApp.Controllers.Api
     {
         private readonly ApplicationDbContext _context;
         private readonly Services.POS.IRepository _pos;
+        private readonly IConfiguration _configuration;
 
-        public SalesOrderController(ApplicationDbContext context, Services.POS.IRepository pos)
+        public SalesOrderController(ApplicationDbContext context, Services.POS.IRepository pos, IConfiguration config)
         {
             _context = context;
             _pos = pos;
+            _configuration = config;
         }
 
         // GET: api/SalesOrder
@@ -85,11 +88,13 @@ namespace beaverNet.POS.WebApp.Controllers.Api
             SalesOrder salesOrder = new SalesOrder();
             salesOrder.Number = _pos.GenerateSONumber();
             salesOrder.SalesOrderDate = DateTime.Now;
+            
             //random customer
             Customer cust = new Customer();
-            cust = await _context.Customer.FirstOrDefaultAsync();
+            cust = await _context.Customer.FirstOrDefaultAsync(x => x.Name == _configuration.GetValue<string>("PoS:Customer"));
             if (cust != null)
             {
+                salesOrder.Description = cust.Name;
                 salesOrder.CustomerId = cust.CustomerId;
             }
 

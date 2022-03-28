@@ -115,6 +115,8 @@ namespace beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Controllers
         {
             // Retrieve data:
             var user = await userManager.FindByIdAsync(id);
+            var roles = await userManager.GetRolesAsync(user);
+
 
             // Build model:
             var model = new UpdateModel() { Item = user };
@@ -123,7 +125,8 @@ namespace beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Controllers
                 model.UserRoleNames = context.Roles.Where(r => context.UserRoles.Where(ur => ur.UserId == id).Select(ur => ur.RoleId).Contains(r.Id)).Select(r => r.Name).ToList();
             model.SupportsUserClaims = userManager.SupportsUserClaim;
             if (model.SupportsUserClaims)
-                model.UserClaims = context.UserClaims.Where(c => c.UserId == id).ToList();
+                model.UserClaims = context.UserClaims.Where(c => c.UserId == id)
+                                          .ToList();
             model.ReturnUrl = (Request.Query["ReturnUrl"].Count > 0) ? Request.Query["ReturnUrl"].ToString() : Request.Headers["Referer"].ToString();
 
             // Render view:

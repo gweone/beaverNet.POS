@@ -6,38 +6,36 @@
 
 <h1>Create</h1>
 
-<h4>SalesOrder</h4>
+<h4>Konsultasi</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-12">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Number" class="control-label"></label>
-                <input asp-for="Number" class="form-control" readonly value="@ViewBag.Number"/>
+                <input asp-for="Number" class="form-control" readonly value="@ViewBag.Number" />
                 <span asp-validation-for="Number" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="CustomerId" class="control-label"></label>
+                @await Html.PartialAsync("_Dropdown", new SearchModel()
+                {
+                    ApiUrl = "/api/Customer",
+                    FieldIndex = 0,
+                    FieldName = "CustomerId,Email",
+                    FieldLabel = "Pilih",
+                    FieldDisplayName = "Name"
+                })
             </div>
             <div class="form-group">
                 <label asp-for="SalesOrderDate" class="control-label"></label>
                 <input asp-for="SalesOrderDate" type="date" class="form-control" />
                 <span asp-validation-for="SalesOrderDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label class="control-label">Pelanggan</label>
-                @await Html.PartialAsync("_Dropdown", new SearchModel()
-                {
-                    ApiUrl = "/api/Customer",
-                    FieldIndex = 0,
-                    FieldName = "CustomerId",
-                    FieldLabel = "Pilih",
-                    FieldDisplayName = "Name"
-                })
-            </div>
+
+            @await Html.PartialAsync("MedicalRecord", new MedicalRecord())
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

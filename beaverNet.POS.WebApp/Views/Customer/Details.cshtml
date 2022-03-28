@@ -2,49 +2,56 @@
 
 @{
     ViewData["Title"] = "Details";
+    var grid = Guid.NewGuid();
 }
 
 <h1>Details</h1>
 
 <div>
-    <h4>Customer</h4>
+    <h4>Pasien</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Email)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Email)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address2)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address2)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Age)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Age)
         </dd>
     </dl>
 </div>
@@ -52,3 +59,39 @@
     <a asp-action="Edit" asp-route-id="@Model.CustomerId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+<br />
+<form class="row g-3 form-filter">
+    <div class="col-auto">
+        <label for="inputPassword4" class="form-label">Tanggal Konsultasi</label>
+        <div class="input-group mb-3">
+            <input type="date" class="form-control" name="StartDate" placeholder="Tanggal Mulai">
+            <span class="input-group-text">Sampai</span>
+            <input type="date" class="form-control" name="EndDate" placeholder="Sampai Tanggal">
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="button" onclick="$('#@grid').DataTable().ajax.reload()" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+<br />
+@await Html.PartialAsync("_DataTables", new SearchModel()
+{
+    Id = grid,
+    ApiUrl = Url.Content("/api/MedicalRecord"),
+    Columns = ModelHelper.GetSearchColumns<MedicalRecord>(),
+    AjaxData = @"params.push({name : 'periode', value : $('[name=Periode]').val() });
+
+                 params.push({name : 'filters[0].column', value :'RecordDate' });
+                 params.push({name : 'filters[0].value', value : $('[name=StartDate]').val() });
+                 params.push({name : 'filters[0].condition', value : 'GreaterThanOrEqual' });
+
+                 params.push({name : 'filters[1].column', value :'RecordDate' });
+                 params.push({name : 'filters[1].value', value : $('[name=EndDate]').val() });
+                 params.push({name : 'filters[1].condition', value : 'LessThanOrEqual' });
+
+                 params.push({name : 'filters[2].column', value :'CustomerId' });
+                 params.push({name : 'filters[2].value', value : '" + Model.CustomerId + @"' });
+                 params.push({name : 'filters[2].condition', value : 'Equal' });
+                "
+})

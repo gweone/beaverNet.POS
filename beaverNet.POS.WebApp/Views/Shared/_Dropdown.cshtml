@@ -9,7 +9,7 @@
         <span class="caret"></span>
     </button>
     <div class="dropdown-menu">
-        <input type="hidden" name="@Model.FieldName" class="@grid-input" />
+        <input type="hidden" name="@Model.FieldName.Split(',').FirstOrDefault()" class="@grid-input" value="@Model.FieldValue" />
         <input type="search" name="search.value" class="form-control @grid-filter" autocomplete="false" placeholder="Type to filter...">
         <ul class="list-unstyled @grid-result">
 
@@ -29,7 +29,7 @@
                 var keyword = this.value;
                 var actionUrl = '@Model.ApiUrl';
                 var d = {
-                    columns: [{ name: '@Model.FieldDisplayName' }],
+                    columns: [ @foreach (var field in Model.FieldDisplayName.Split(',')) { @Html.Raw(string.Format("{{ name: '{0}' }},", field)) }],
                     search: {
                         value : keyword
                     },
@@ -60,8 +60,13 @@
                                 })
                                 .data('id', v[v.length - 1]);
                             $('.@grid-result').append($('<li>').append($el));
+
+                            if ($('.@grid-input').val() == v[v.length - 1])
+                                $('.@grid-label').html(v[@Model.FieldIndex]);
                         }
 
+                        if (!result.data.length)
+                             $('.@grid-result').append($('<li>').append($('<a class="dropdown-item d-flex align-items-center gap-2 py-2">').html('Ups! Tidak ditemukan')));
                     }
                 });
             };

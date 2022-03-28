@@ -5,42 +5,12 @@
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Buat Baru</a>
 </p>
 @await Html.PartialAsync("_DataTables", new SearchModel()
 {
     ApiUrl = Url.Content("api/vendor"),
-    Columns = new[] {
-        new SearchColumn(){
-            name = "Name",
-            displayname = "Name"
-        },
-        new SearchColumn(){
-            name = "Description",
-            displayname = "Description"
-        },
-        new SearchColumn(){
-            name = "Phone",
-            displayname = "Phone"
-        },
-        new SearchColumn(){
-            name = "Email",
-            displayname = "Email"
-        },
-        new SearchColumn(){
-            name = "Address",
-            displayname = "Address"
-        },
-        new SearchColumn(){
-            name = "Address2",
-            displayname = "Address2"
-        },
-        new SearchColumn(){
-            searchable = false,
-            orderable = false,
-            displayname = "Tindakan"
-        }
-    },
+    Columns = ModelHelper.GetSearchColumnsWithAction<Vendor>(),
     ColumnDefinition = @"'columnDefs': [{
                     'targets': -1,
                     'data': null,

@@ -15,6 +15,7 @@ namespace beaverNet.POS.WebApp.Models
     public class SearchColumn
     {
         public string data { get; set; }
+        public int position { get; set; }
         public string name { get; set; }
         public bool searchable { get; set; } = true;
         public bool orderable { get; set; } = true;

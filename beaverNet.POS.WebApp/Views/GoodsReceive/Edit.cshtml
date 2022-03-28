@@ -6,7 +6,7 @@
 
 <h1>Edit</h1>
 
-<h4>GoodsReceive</h4>
+<h4>Penerimaan Barang</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -19,16 +19,6 @@
                 <span asp-validation-for="Number" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GoodsReceiveDate" class="control-label"></label>
-                <input asp-for="GoodsReceiveDate" class="form-control" />
-                <span asp-validation-for="GoodsReceiveDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label class="control-label">Purchase Order</label>
                 @await Html.PartialAsync("_Dropdown", new SearchModel()
                 {
@@ -39,6 +29,16 @@
                     FieldValue = Model.PurchaseOrderId.ToString(),
                     FieldDisplayName = "Number"
                 })
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoodsReceiveDate" class="control-label"></label>
+                <input asp-for="GoodsReceiveDate" class="form-control" />
+                <span asp-validation-for="GoodsReceiveDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" /> | <a asp-action="Index">Back to List</a>

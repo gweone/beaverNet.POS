@@ -1,0 +1,24 @@
+﻿@model beaverNet.POS.WebApp.Models.POS.MedicalRecord
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <input hidden name="medicalRecord.MedicalRecordId" value="@Model.MedicalRecordId" />
+        <input hidden name="medicalRecord.CustomerId" value="@Model.CustomerId" />
+        <input hidden name="medicalRecord.SalesOrderId" value="@Model.SalesOrderId" />
+        <div class="form-group">
+            <label asp-for="PyshicalCheck" class="control-label"></label>
+            <textarea required name="medicalRecord.PyshicalCheck" class="form-control">@Model.PyshicalCheck</textarea>
+            <span asp-validation-for="PyshicalCheck" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Diagnosis" class="control-label"></label>
+            <textarea required name="medicalRecord.Diagnosis" class="form-control">@Model.Diagnosis</textarea>
+            <span asp-validation-for="Diagnosis" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Therapy" class="control-label"></label>
+            <textarea asp-for="Therapy" name="medicalRecord.Therapy" class="form-control">@Model.Therapy</textarea>
+            <span asp-validation-for="Therapy" class="text-danger"></span>
+        </div>
+    </div>
+</div>

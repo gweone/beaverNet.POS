@@ -7,18 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using Microsoft.AspNetCore.Authorization;
+using beaverNet.POS.WebApp.Utilities;
+using Microsoft.Extensions.Configuration;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
+    [Authorize]
     public class SalesOrderController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly Services.POS.IRepository _pos;
+        private readonly IConfiguration _configuration;
 
-        public SalesOrderController(ApplicationDbContext context, Services.POS.IRepository pos)
+        public SalesOrderController(ApplicationDbContext context, Services.POS.IRepository pos, IConfiguration configuration)
         {
             _context = context;
             _pos = pos;
+            _configuration = configuration;
         }
 
         // GET: SalesOrder/POS
@@ -65,12 +71,20 @@ namespace beaverNet.POS.WebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SalesOrderId,Number,Description,SalesOrderDate,CustomerId")] SalesOrder salesOrder)
+        public async Task<IActionResult> Create([Bind("SalesOrderId,Number,Description,SalesOrderDate,CustomerId")] SalesOrder salesOrder, MedicalRecord medicalRecord)
         {
             if (ModelState.IsValid)
             {
                 salesOrder.SalesOrderId = Guid.NewGuid();
+                salesOrder.Description = medicalRecord.Diagnosis;
                 _context.Add(salesOrder);
+
+                medicalRecord.MedicalRecordId = Guid.NewGuid();
+                medicalRecord.CustomerId = salesOrder.CustomerId;
+                medicalRecord.SalesOrderId = salesOrder.SalesOrderId;
+                medicalRecord.RecordDate = DateTimeOffset.Now;
+                _context.Add(medicalRecord);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Edit), new { id = salesOrder.SalesOrderId });
             }
@@ -92,7 +106,7 @@ namespace beaverNet.POS.WebApp.Controllers
                 return NotFound();
             }
             ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerId", "Name", salesOrder.CustomerId);
-            ViewData["ProductId"] = new SelectList(_context.Product, "ProductId", "Name");
+            ViewData["medicalRecord"] = await _context.MedicalRecord.FirstOrDefaultAsync(x => x.SalesOrderId == salesOrder.SalesOrderId);
             return View(salesOrder);
         }
 
@@ -101,17 +115,31 @@ namespace beaverNet.POS.WebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("SalesOrderId,Number,Description,SalesOrderDate,CustomerId")] SalesOrder salesOrder)
+        public async Task<IActionResult> Edit(Guid id, [Bind("SalesOrderId,Number,Description,SalesOrderDate,CustomerId")] SalesOrder salesOrder, [Bind(Prefix = "record.")] MedicalRecord medicalRecord)
         {
             if (id != salesOrder.SalesOrderId)
             {
                 return NotFound();
             }
 
+            if(!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if((DateTimeOffset.Now - salesOrder.SalesOrderDate).Value.TotalDays > 7)
+                {
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if(medicalRecord != null && medicalRecord.MedicalRecordId != Guid.Empty)
+                    {
+                        salesOrder.Description = medicalRecord.Diagnosis;
+                        _context.Update(medicalRecord);
+                    }
                     _context.Update(salesOrder);
                     await _context.SaveChangesAsync();
                 }
@@ -157,6 +185,16 @@ namespace beaverNet.POS.WebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var salesOrder = await _context.SalesOrder.FindAsync(id);
+
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if ((DateTimeOffset.Now - salesOrder.SalesOrderDate).Value.TotalDays > 7)
+                {
+                    return Forbid();
+                }
+            }
+
             List<SalesOrderLine> line = await _context.SalesOrderLine.Where(x => x.SalesOrderId.Equals(id)).ToListAsync();
             List<InvenTran> tran = await _context.InvenTran.Where(x => x.TranSourceNumber.Equals(salesOrder.Number)).ToListAsync();
             _context.InvenTran.RemoveRange(tran);

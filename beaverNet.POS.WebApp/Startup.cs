@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Http;
 using beaverNet.POS.WebApp.Services.POS;
 using beaverNet.POS.WebApp.Email;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using beaverNet.POS.WebApp.Services;
 
 namespace beaverNet.POS.WebApp
 {
@@ -37,40 +39,17 @@ namespace beaverNet.POS.WebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            //if (env.IsDevelopment())
-            //{
-            //    services.AddDbContext<ApplicationDbContext>(options =>
-            //      options.UseSqlServer(
-            //           Configuration.GetConnectionString("DefaultConnection")));
-            //}
-            //else
-            //{
-                services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(
                     Configuration.GetConnectionString("SqLiteConnection")));
-           //// }
-            
+
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                     .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                    .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddTransient<IRepository, Repository>();
+            services.AddSingleton<IAuthorizationHandler, PoSAuthorizationHandler>();
 
-            //services.AddAuthentication().AddFacebook(fb =>
-            //{
-            //    fb.AppId = "1460046297460691";
-            //    fb.AppSecret = "d62e7f2852fc5d7b12f8518721222f5b";
-            //});
 
-            //services.AddAuthentication().AddGoogle(go =>
-            //{
-            //    go.ClientId = "688106088890-pov7l0qi48ep9nhb4idiihhig97mc97a.apps.googleusercontent.com";
-            //    go.ClientSecret = "AZGG3CIboE3UAxf1AgdjX9pF";
-            //});
-            // services.AddAuthentication().AddGithub( gt =>
-            //  {
-            //        gt.ClientId = "428f22bee79c351e2c1a";
-            //       gt.ClientSecret = "a755fb0d4a0c0e1950bddd442dd867de08819535";
-            //      }
 
             services.AddSwaggerGen(c =>
             {

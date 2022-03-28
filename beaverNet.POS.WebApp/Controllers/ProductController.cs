@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
+using Microsoft.AspNetCore.Authorization;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -42,6 +44,7 @@ namespace beaverNet.POS.WebApp.Controllers
 
             return View(product);
         }
+
 
         // GET: Product/Create
         public IActionResult Create()
@@ -143,6 +146,55 @@ namespace beaverNet.POS.WebApp.Controllers
             var product = await _context.Product.FindAsync(id);
             _context.Product.Remove(product);
             await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Product/PriceCalculation/5
+        public async Task<IActionResult> PriceCalculation(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var goodsReceiveQueryAble = from goodsReceive in _context.GoodsReceive
+                                        join purchase in _context.PurchaseOrder on goodsReceive.PurchaseOrderId equals purchase.PurchaseOrderId
+                                        join vendor in _context.Vendor on purchase.VendorId equals vendor.VendorId
+                                        join pline in _context.GoodsReceiveLine on goodsReceive.GoodsReceiveId equals pline.GoodsReceiveId
+                                        join pcline in _context.PurchaseOrderLine on new { goodsReceive.PurchaseOrderId, pline.PurchaseOrderLineId }
+                                                                                    equals new { pcline.PurchaseOrderId, pcline.PurchaseOrderLineId }
+                                        select new
+                                        {
+                                            pline.ProductId,
+                                            purchase.Number,
+                                            purchase.PurchaseOrderDate,
+                                            goodsReceive.GoodsReceiveDate,
+                                            pline.QtyReceive,
+                                            vendor.VendorId,
+                                            Price = (int)pcline.Price / pcline.Quantity * pline.QtyReceive
+                                        };
+            if (id.HasValue && id.Value != Guid.Empty)
+                goodsReceiveQueryAble = goodsReceiveQueryAble.Where(x => x.ProductId == id.Value);
+            var gpGoodReceive = goodsReceiveQueryAble.GroupBy(x => x.ProductId)
+                                              .Select(x => new
+                                              {
+                                                  ProductId = x.Key,
+                                                  QtyReceive = x.Sum(y => y.QtyReceive),
+                                                  Amount = x.Sum(y => y.Price)
+                                              });
+            var queryable = (from p in _context.Product
+                             join receive in gpGoodReceive on p.ProductId equals receive.ProductId
+                             select new Product
+                             {
+                                 Name = p.Name,
+                                 Description = p.Description,
+                                 ProductId = p.ProductId,
+                                 PriceSell = p.PriceSell,
+                                 PricePurchase = receive.Amount / receive.QtyReceive
+                             });
+
+            _context.UpdateRange(queryable);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 

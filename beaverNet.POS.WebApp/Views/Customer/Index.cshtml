@@ -1,55 +1,25 @@
 ﻿@{
-    ViewData["Title"] = "Customer";
+    ViewData["Title"] = "Pasien";
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Buat Baru</a>
 </p>
 @await Html.PartialAsync("_DataTables", new SearchModel()
 {
     ApiUrl = Url.Content("api/customer"),
-    Columns = new[] {
-        new SearchColumn(){
-            name = "Name",
-            displayname = "Name"
-        },
-        new SearchColumn(){
-            name = "Description",
-            displayname = "Description"
-        },
-        new SearchColumn(){
-            name = "Phone",
-            displayname = "Phone"
-        },
-        new SearchColumn(){
-            name = "Email",
-            displayname = "Email"
-        },
-        new SearchColumn(){
-            name = "Address",
-            displayname = "Address"
-        },
-        new SearchColumn(){
-            name = "Address2",
-            displayname = "Address2"
-        },
-        new SearchColumn(){
-            searchable = false,
-            orderable = false,
-            displayname = "Tindakan"
-        }
-    },
+    Columns =  ModelHelper.GetSearchColumnsWithAction<Customer>(),
     ColumnDefinition = @"'columnDefs': [{
                     'targets': -1,
                     'data': null,
                     'orderable': false,
                     'searchable':false,
                     'render': function (data, type, row, meta) {
-                        return '<a href=""/customer/Edit/' + data[6] + '""class=""btn btn-warning"">Edit</a>' +
-                               '<a href=""/customer/Details/' + data[6] + '""class=""btn btn-success"">Details</a>' +
-                               '<a href=""/customer/Delete/' + data[6] + '""class=""btn btn-danger"">Delete</a>';
+                        return '<a href=""/customer/Edit/' + data[7] + '""class=""btn btn-warning"">Edit</a>' +
+                               '<a href=""/customer/Details/' + data[7] + '""class=""btn btn-success"">Details</a>' +
+                               '<a href=""/customer/Delete/' + data[7] + '""class=""btn btn-danger"">Delete</a>';
                     }
                 }]"
 })

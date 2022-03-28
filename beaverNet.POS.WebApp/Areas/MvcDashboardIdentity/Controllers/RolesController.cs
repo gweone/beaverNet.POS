@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Models;
 using beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Models.Roles;
+using System.Security.Claims;
 
 namespace beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Controllers
 {
@@ -135,6 +136,33 @@ namespace beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Controllers
             return View("UpdateDialog", model);
         }
 
+        public async Task<IActionResult> SyncAuthorize()
+        {
+            var asm = this.GetType().Assembly;
+            var methods = asm.ExportedTypes
+                .Where(type => typeof(Controller)
+                    .IsAssignableFrom(type))
+                .SelectMany(type => type.GetMethods())
+                .Where(method => method.IsPublic
+                    && (
+                        method.ReturnType == typeof(IActionResult) ||
+                        method.ReturnType == typeof(Task<IActionResult>)
+                        )
+                    )
+                .Select(m => new { Action = m.Name, Controller = m.DeclaringType.Name.Replace("Controller", "") });
+
+            var role = await roleManager.FindByNameAsync("Administrator");
+            var claims = await roleManager.GetClaimsAsync(role);
+
+            foreach (var item in methods)
+            {
+                var rolename = string.Format("{0}.{1}", item.Controller, item.Action).ToLowerInvariant();
+                if (claims.Any(x => x.Type == ClaimTypes.UserData && x.Value == rolename))
+                    continue;
+                await roleManager.AddClaimAsync(role, new System.Security.Claims.Claim(ClaimTypes.UserData, rolename));
+            }
+            return RedirectToAction(nameof(Index));
+        }
         private async Task<IdentityResult> SaveRoleAsync(IdentityRole role)
         {
             if (role.Id == null)

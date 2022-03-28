@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace beaverNet.POS.WebApp.Models.POS
     public class InvenTran
     {
         public Guid InvenTranId { get; set; }
+        [DisplayName("No. Transaksi")]
         public string Number { get; set; }
         public string Description { get; set; }
         public Guid ProductId { get; set; }

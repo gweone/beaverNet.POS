@@ -1,11 +1,11 @@
 ﻿@model beaverNet.POS.WebApp.Areas.MvcDashboardIdentity.Models.Roles.IndexModel
 
 <h2>Roles</h2>
-
 <form inline-target="#body-content" history="set" onchange-submit=":form" onsubmit-show=".overlay">
 
     <div class="">
         <a class="btn btn-primary" href="@Url.Action("UpdateDialog")" inline-target="#modal-lg-content">New</a>
+        <a asp-action="SyncAuthorize" class="btn btn-info">Sync Supported Roles</a>
         <div class="float-right form-inline mb-3">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search..." value="@Model.DataPage.Filter">
