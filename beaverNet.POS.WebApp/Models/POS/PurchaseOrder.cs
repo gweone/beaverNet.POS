@@ -15,6 +15,8 @@ namespace beaverNet.POS.WebApp.Models.POS
         [DisplayName("No. Transaksi")]
         public string Number { get; set; }
         public string Description { get; set; }
+
+        [DisplayName("Tanggal Pembelian")]
         public DateTimeOffset? PurchaseOrderDate { get; set; } = DateTime.Now;
         [DisplayName("Supplier")] 
         public Guid VendorId { get; set; }

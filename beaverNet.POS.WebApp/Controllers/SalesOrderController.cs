@@ -63,7 +63,7 @@ namespace beaverNet.POS.WebApp.Controllers
         {
             ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerId", "Name");
             ViewData["Number"] = _pos.GenerateSONumber();
-            return View();
+            return View(new SalesOrder() { SalesOrderDate = DateTime.Now });
         }
 
         // POST: SalesOrder/Create
@@ -204,6 +204,25 @@ namespace beaverNet.POS.WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> Payment(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var salesOrder = await _context.SalesOrder
+                .Include(s => s.Customer)
+                .FirstOrDefaultAsync(m => m.SalesOrderId == id);
+            if (salesOrder == null)
+            {
+                return NotFound();
+            }
+            salesOrder.PaidStatus = true;
+            _context.SalesOrder.Update(salesOrder);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
         private bool SalesOrderExists(Guid id)
         {
             return _context.SalesOrder.Any(e => e.SalesOrderId == id);

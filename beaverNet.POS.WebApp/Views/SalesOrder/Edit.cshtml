@@ -71,6 +71,9 @@
             </thead>
         </table>
     </div>
+    <div class="col-md-12 text-right payment d-none">
+        <a class="btn btn-success" asp-action="Payment" asp-route-id="@Model.SalesOrderId">Lunas</a>
+    </div>
 </div>
 
 <!--Modal-->
@@ -138,7 +141,9 @@
                     "type": "GET",
                     "url": "/api/SalesOrderLine/GetLines?salesOrderId=" + salesOrderId +"",
                     "dataSrc": function (data) {
-
+                        if (data.lines.length) {
+                            $('.payment').removeClass('d-none');
+                        }
                         return data.lines
                     }
                 },

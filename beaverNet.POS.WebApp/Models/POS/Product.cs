@@ -20,12 +20,12 @@ namespace beaverNet.POS.WebApp.Models.POS
         
         [Required]
         [DisplayName("Harga Jual")]
-        [SearchColumn(2, searchable = false)]
+        [SearchColumn(2, searchable = false, orderable = false)]
         public decimal PriceSell { get; set; }
 
         [Required]
         [DisplayName("Harga Beli")]
-        [SearchColumn(3, searchable = false)]
+        [SearchColumn(3, searchable = false, orderable = false)]
         public decimal PricePurchase { get; set; }
     }
 }

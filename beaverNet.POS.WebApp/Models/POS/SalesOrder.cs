@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using beaverNet.POS.WebApp.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,11 +14,22 @@ namespace beaverNet.POS.WebApp.Models.POS
         public Guid SalesOrderId { get; set; }
         [Required]
         [DisplayName("No. Transaksi")]
+
+        [SearchColumn(0)]
         public string Number { get; set; }
+
+        [SearchColumn(1)]
         public string Description { get; set; }
+        [DisplayName("Tanggal Konsultasi")]
+
+        [SearchColumn(2, searchable = false)]
         public DateTimeOffset? SalesOrderDate { get; set; } = DateTime.Now;
         [DisplayName("Pasien")]
         public Guid CustomerId { get; set; }
+
+        [DisplayName("Pembayaran")]
+        public bool PaidStatus { get; set; }
+
         public Customer Customer { get; set; }
         public virtual List<SalesOrderLine> SalesOrderLine { get; set; } = new List<SalesOrderLine>();
     }

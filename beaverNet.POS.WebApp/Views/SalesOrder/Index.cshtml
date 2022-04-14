@@ -25,7 +25,7 @@
                 })
     </div>
     <div class="col-auto">
-        <label for="inputPassword4" class="form-label">Tanggal Penjualan</label>
+        <label for="inputPassword4" class="form-label">Tanggal Konsultasi</label>
         <div class="input-group mb-3">
             <input type="date" class="form-control" name="StartDate" placeholder="Tanggal Mulai">
             <span class="input-group-text">Sampai</span>
@@ -52,12 +52,17 @@
         },
         new SearchColumn(){
             name = "SalesOrderDate",
-            displayname = "SalesOrderDate",
+            displayname = "Tanggal Konsultasi",
             searchable = false
         },
         new SearchColumn(){
             name = "Customer.Name",
             displayname = "Customer"
+        },
+        new SearchColumn(){
+            name = "PaidStatus",
+            displayname = "Pembayaran",
+            searchable = false
         },
         new SearchColumn(){
             searchable = false,
@@ -78,15 +83,22 @@
                  params.push({name : 'filters[2].condition', value : 'LessThanOrEqual' });
                 ",
     ColumnDefinition = @"'columnDefs': [{
-                    'targets': -1,
-                    'data': null,
-                    'orderable': false,
-                    'searchable':false,
-                    'render': function (data, type, row, meta) {
-                        return '<a href=""/SalesOrder/Edit/' + data[4] + '""class=""btn btn-warning"">Edit</a>' +
-                               '<a href=""/SalesOrder/Details/' + data[4] + '""class=""btn btn-success"">Details</a>' +
-                               '<a href=""/SalesOrder/Delete/' + data[4] + '""class=""btn btn-danger"">Delete</a>';
-                    }
-                }]"
+                            'targets': -1,
+                            'data': null,
+                            'orderable': false,
+                            'searchable':false,
+                            'render': function (data, type, row, meta) {
+                                return '<a href=""/SalesOrder/Edit/' + data[5] + '""class=""btn btn-warning"">Edit</a>' +
+                                       '<a href=""/SalesOrder/Details/' + data[5] + '""class=""btn btn-success"">Details</a>' +
+                                       '<a href=""/SalesOrder/Delete/' + data[5] + '""class=""btn btn-danger"">Delete</a>';
+                            }
+                        },
+                        {
+                            'targets': -2,
+                            'render' : function (data, type, row, meta){
+                                return '<input type=""checkbox"" disabled ' + (data ? 'checked' : '') + '  />';
+                            }
+                        }
+                        ]"
 })
 

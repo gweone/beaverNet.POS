@@ -25,8 +25,9 @@ namespace beaverNet.POS.WebApp.Controllers.Api
         [HttpGet("[action]")]
         public async Task<IActionResult> Stocks([FromQuery] SearchCriteria criteria)
         {
-            var queryable = (from inv in _context.InvenTran
-                             join p in _context.Product on inv.ProductId equals p.ProductId
+            var queryable = (from p in _context.Product
+                             join inv in _context.InvenTran on p.ProductId equals inv.ProductId into ginv
+                             from inv in ginv.DefaultIfEmpty()
                              select new
                              {
                                  ProductId = p.ProductId,
@@ -154,6 +155,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
             var salesQueryAble = from sales in _context.SalesOrder
                                  join customer in _context.Customer on sales.CustomerId equals customer.CustomerId
                                  join pline in _context.SalesOrderLine on sales.SalesOrderId equals pline.SalesOrderId
+                                 where sales.PaidStatus
                                  select new
                                  {
                                      pline.ProductId,
@@ -207,6 +209,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
             var salesQueryAble = (from sales in _context.SalesOrder
                                   join customer in _context.Customer on sales.CustomerId equals customer.CustomerId
                                   join pline in _context.SalesOrderLine on sales.SalesOrderId equals pline.SalesOrderId
+                                  where sales.PaidStatus
                                   select new
                                   {
                                       pline.ProductId,
@@ -248,6 +251,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
             var salesQueryAble = (from sales in _context.SalesOrder
                                   join customer in _context.Customer on sales.CustomerId equals customer.CustomerId
                                   join pline in _context.SalesOrderLine on sales.SalesOrderId equals pline.SalesOrderId
+                                  where sales.PaidStatus
                                   select new
                                   {
                                       pline.ProductId,

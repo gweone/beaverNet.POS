@@ -18,6 +18,7 @@ namespace beaverNet.POS.WebApp.Models.POS
         public string Number { get; set; }
         [SearchColumn(1)]
         public string Description { get; set; }
+        [DisplayName("Tanggal Penerimaan")]
         [SearchColumn(2)]
         public DateTimeOffset? GoodsReceiveDate { get; set; } = DateTime.Now;
         [DisplayName("Purchase Order")]

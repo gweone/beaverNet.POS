@@ -54,7 +54,7 @@ namespace beaverNet.POS.WebApp.Controllers
         {
             ViewData["PurchaseOrderId"] = new SelectList(_context.PurchaseOrder, "PurchaseOrderId", "Number");
             ViewData["Number"] = _pos.GenerateGRNumber();
-            return View();
+            return View(new GoodsReceive() { GoodsReceiveDate = DateTime.Now });
         }
 
         // POST: GoodsReceive/Create
