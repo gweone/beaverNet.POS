@@ -64,7 +64,7 @@ namespace beaverNet.POS.WebApp.Controllers
                 product.ProductId = Guid.NewGuid();
                 _context.Add(product);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = product.ProductId });
+                return RedirectToAction(nameof(Index));
             }
             return View(product);
         }
@@ -150,12 +150,8 @@ namespace beaverNet.POS.WebApp.Controllers
         }
 
         // GET: Product/PriceCalculation/5
-        public async Task<IActionResult> PriceCalculation(Guid? id)
+        public async Task<IActionResult> PriceCalculation(Guid? id = null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
             var goodsReceiveQueryAble = from goodsReceive in _context.GoodsReceive
                                         join purchase in _context.PurchaseOrder on goodsReceive.PurchaseOrderId equals purchase.PurchaseOrderId
                                         join vendor in _context.Vendor on purchase.VendorId equals vendor.VendorId
@@ -170,7 +166,7 @@ namespace beaverNet.POS.WebApp.Controllers
                                             goodsReceive.GoodsReceiveDate,
                                             pline.QtyReceive,
                                             vendor.VendorId,
-                                            Price = (int)pcline.Price / pcline.Quantity * pline.QtyReceive
+                                            Price = (int)pcline.Price * pline.QtyReceive
                                         };
             if (id.HasValue && id.Value != Guid.Empty)
                 goodsReceiveQueryAble = goodsReceiveQueryAble.Where(x => x.ProductId == id.Value);

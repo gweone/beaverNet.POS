@@ -28,7 +28,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
         {
             if (criteria == null || criteria.columns == null)
                 return await _context.Product.ToListAsync();
-            return Ok(criteria.Apply<Product>(_context, "ProductId"));
+            return Ok(criteria.Apply<Product>(_context, "PriceSell", "ProductId"));
         }
 
         // GET: api/Product/5

@@ -9,6 +9,8 @@ using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
 using beaverNet.POS.WebApp.Services.POS;
 using Microsoft.AspNetCore.Authorization;
+using beaverNet.POS.WebApp.Utilities;
+using Microsoft.Extensions.Configuration;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
@@ -17,11 +19,13 @@ namespace beaverNet.POS.WebApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IRepository _pos;
+        private readonly IConfiguration _configuration;
 
-        public GoodsReceiveController(ApplicationDbContext context, Services.POS.IRepository pos)
+        public GoodsReceiveController(ApplicationDbContext context, Services.POS.IRepository pos, IConfiguration configuration)
         {
             _context = context;
             _pos = pos;
+            _configuration = configuration;
         }
 
         // GET: GoodsReceive
@@ -132,6 +136,15 @@ namespace beaverNet.POS.WebApp.Controllers
                 return NotFound();
             }
 
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if ((DateTimeOffset.Now - goodsReceive.GoodsReceiveDate).Value.TotalDays > 7)
+                {
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -181,6 +194,15 @@ namespace beaverNet.POS.WebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var goodsReceive = await _context.GoodsReceive.FindAsync(id);
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if ((DateTimeOffset.Now - goodsReceive.GoodsReceiveDate).Value.TotalDays > 7)
+                {
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                    return View(nameof(Delete), goodsReceive);
+                }
+            }
 
             List<GoodsReceiveLine> lines = new List<GoodsReceiveLine>();
             lines = await _context.GoodsReceiveLine.Where(x => x.GoodsReceiveId.Equals(id)).ToListAsync();

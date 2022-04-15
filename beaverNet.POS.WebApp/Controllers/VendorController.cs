@@ -63,7 +63,7 @@ namespace beaverNet.POS.WebApp.Controllers
                 vendor.VendorId = Guid.NewGuid();
                 _context.Add(vendor);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = vendor.VendorId });
+                return RedirectToAction(nameof(Index));
             }
             return View(vendor);
         }

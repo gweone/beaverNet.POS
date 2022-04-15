@@ -71,7 +71,7 @@ namespace beaverNet.POS.WebApp.Controllers
                 customer.CustomerId = Guid.NewGuid();
                 _context.Add(customer);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = customer.CustomerId });
+                return RedirectToAction(nameof(Index));
             }
             return View(customer);
         }

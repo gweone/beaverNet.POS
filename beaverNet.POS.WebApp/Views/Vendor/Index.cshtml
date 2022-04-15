@@ -9,7 +9,7 @@
 </p>
 @await Html.PartialAsync("_DataTables", new SearchModel()
 {
-    ApiUrl = Url.Content("api/vendor"),
+    ApiUrl = Url.Content("/api/vendor"),
     Columns = ModelHelper.GetSearchColumnsWithAction<Vendor>(),
     ColumnDefinition = @"'columnDefs': [{
                     'targets': -1,

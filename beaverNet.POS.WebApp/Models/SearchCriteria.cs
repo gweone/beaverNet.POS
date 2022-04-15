@@ -118,7 +118,7 @@ namespace beaverNet.POS.WebApp.Models
 
                     var searchExpresion = MethodExpression<T>(filter.condition, filter.column, filter.value);
                     if (searchExpresion != null)
-                        filterExpression = ExpressionBuilder.And(filterExpression, searchExpresion);                    
+                        filterExpression = ExpressionBuilder.And(filterExpression, searchExpresion);
                 }
                 if (predicate != null)
                     predicate = predicate.And(filterExpression);
@@ -194,12 +194,17 @@ namespace beaverNet.POS.WebApp.Models
                 yield return GetValue(instance, names);
             }
 
-            foreach (var item in instance.GetType().GetProperties())
+            if (additionalfields != null)
             {
-                if (!additionalfields.Any(x => x == item.Name))
-                    continue;
-                yield return item.GetValue(instance);
+                foreach (var item in additionalfields)
+                {
+                    var pInfo = instance.GetType().GetProperty(item);
+                    if (pInfo == null)
+                        continue;
+                    yield return pInfo.GetValue(instance);
+                }
             }
+
         }
 
         object GetValue(object instance, IEnumerable<string> names)
@@ -235,7 +240,7 @@ namespace beaverNet.POS.WebApp.Models
             var converter = TypeDescriptor.GetConverter(fieldType);
             Expression valueExpression = Expression.Constant(converter.ConvertFromString(value), fieldType);
 
-            if(fieldType == typeof(DateTimeOffset) || fieldType == typeof(DateTimeOffset?))
+            if (fieldType == typeof(DateTimeOffset) || fieldType == typeof(DateTimeOffset?))
                 valueExpression = DateExpression(valueExpression);
 
             var methodinfo = typeof(Expression).GetMethods()

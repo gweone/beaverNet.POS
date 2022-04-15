@@ -79,7 +79,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                         pline.ProductId,
                                         purchase.Number,
                                         purchase.PurchaseOrderDate,
-                                        Price = (int)pline.Price,
+                                        Price = (int)pline.Total,
                                         goodsReceive.GoodsReceiveDate,
                                         QtyPurchase = pline.Quantity,
                                         vendor.VendorId
@@ -109,7 +109,7 @@ namespace beaverNet.POS.WebApp.Controllers.Api
                                             goodsReceive.GoodsReceiveDate,
                                             pline.QtyReceive,
                                             vendor.VendorId,
-                                            Price = (int)pcline.Price / pcline.Quantity * pline.QtyReceive
+                                            Price = (int)pcline.Price * pline.QtyReceive
                                         };
             goodsReceiveQueryAble = criteria.ApplyFilters(goodsReceiveQueryAble);
             var gpGoodReceive = goodsReceiveQueryAble.GroupBy(x => x.ProductId)

@@ -9,6 +9,8 @@ using beaverNet.POS.WebApp.Data;
 using beaverNet.POS.WebApp.Models.POS;
 using beaverNet.POS.WebApp.Services.POS;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
+using beaverNet.POS.WebApp.Utilities;
 
 namespace beaverNet.POS.WebApp.Controllers
 {
@@ -17,11 +19,13 @@ namespace beaverNet.POS.WebApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IRepository _pos;
+        private readonly IConfiguration _configuration;
 
-        public PurchaseOrderController(ApplicationDbContext context, Services.POS.IRepository pos)
+        public PurchaseOrderController(ApplicationDbContext context, Services.POS.IRepository pos, IConfiguration configuration)
         {
             _context = context;
             _pos = pos;
+            _configuration = configuration;
         }
 
         // GET: PurchaseOrder
@@ -88,6 +92,7 @@ namespace beaverNet.POS.WebApp.Controllers
             {
                 return NotFound();
             }
+
             ViewData["VendorId"] = new SelectList(_context.Vendor, "VendorId", "Name", purchaseOrder.VendorId);
             ViewData["ProductId"] = new SelectList(_context.Product, "ProductId", "Name");
             return View(purchaseOrder);
@@ -103,6 +108,15 @@ namespace beaverNet.POS.WebApp.Controllers
             if (id != purchaseOrder.PurchaseOrderId)
             {
                 return NotFound();
+            }
+
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if ((DateTimeOffset.Now - purchaseOrder.PurchaseOrderDate).Value.TotalDays > 7)
+                {
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                }
             }
 
             if (ModelState.IsValid)
@@ -154,6 +168,15 @@ namespace beaverNet.POS.WebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var purchaseOrder = await _context.PurchaseOrder.FindAsync(id);
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            {
+                var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
+                if ((DateTimeOffset.Now - purchaseOrder.PurchaseOrderDate).Value.TotalDays > 7)
+                {
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                    return View(nameof(Delete), purchaseOrder);
+                }
+            }
             List<PurchaseOrderLine> line = await _context.PurchaseOrderLine.Where(x => x.PurchaseOrderId.Equals(id)).ToListAsync();
             _context.PurchaseOrderLine.RemoveRange(line);
             _context.PurchaseOrder.Remove(purchaseOrder);

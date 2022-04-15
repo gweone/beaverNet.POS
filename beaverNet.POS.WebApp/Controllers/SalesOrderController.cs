@@ -105,8 +105,15 @@ namespace beaverNet.POS.WebApp.Controllers
             {
                 return NotFound();
             }
+            else if(salesOrder.PaidStatus)
+            {
+                if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+                    return Forbid();
+            }
+
             ViewData["CustomerId"] = new SelectList(_context.Customer, "CustomerId", "Name", salesOrder.CustomerId);
             ViewData["medicalRecord"] = await _context.MedicalRecord.FirstOrDefaultAsync(x => x.SalesOrderId == salesOrder.SalesOrderId);
+
             return View(salesOrder);
         }
 
@@ -122,10 +129,10 @@ namespace beaverNet.POS.WebApp.Controllers
                 return NotFound();
             }
 
-            if(!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
+            if (!HttpContext.User.IsInRole(SD.RoleAdmin) && !HttpContext.User.IsInRole(SD.RoleSuperUser))
             {
                 var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
-                if((DateTimeOffset.Now - salesOrder.SalesOrderDate).Value.TotalDays > 7)
+                if ((DateTimeOffset.Now - salesOrder.SalesOrderDate).Value.TotalDays > 7)
                 {
                     ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
                 }
@@ -191,7 +198,8 @@ namespace beaverNet.POS.WebApp.Controllers
                 var backdate = _configuration.GetValue<int>("PoS.Backdated", 7);
                 if ((DateTimeOffset.Now - salesOrder.SalesOrderDate).Value.TotalDays > 7)
                 {
-                    return Forbid();
+                    ModelState.AddModelError("Error", $"Anda tidak bisa mengubah data yang telah di input lebih dari {backdate} hari");
+                    return View(nameof(Delete), salesOrder);
                 }
             }
 

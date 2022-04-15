@@ -90,13 +90,14 @@
                         <div class="form-group">
                             <label class="control-label">Product</label>
                             @await Html.PartialAsync("_Dropdown", new SearchModel()
-                            {
-                                ApiUrl = "/api/Product",
-                                FieldIndex = 0,
-                                FieldName = "ProductId",
-                                FieldLabel = "Product",
-                                FieldDisplayName = "Name"
-                            })
+                       {
+                           ApiUrl = "/api/Product",
+                           FieldIndex = 0,
+                           FieldName = "ProductId",
+                           FieldLabel = "Product",
+                           FieldDisplayName = "Name",
+                           OnSelected = "$('#Price').val($(this).data('s')[1])"
+                       })
                         </div>
                     </div>
                     <div class="col-md-6">

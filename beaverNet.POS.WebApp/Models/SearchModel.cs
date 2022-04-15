@@ -19,5 +19,7 @@ namespace beaverNet.POS.WebApp.Models
         public string FieldValue { get; set; }
         public string FieldDisplayName { get; set; }
         public int FieldIndex { get; set;}
+
+        public string OnSelected { get; set; }
     }
 }

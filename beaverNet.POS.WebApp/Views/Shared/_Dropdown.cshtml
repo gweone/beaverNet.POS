@@ -57,8 +57,10 @@
                                 .on('click', function () {
                                      $('.@grid-input').val($(this).data('id'));
                                      $('.@grid-label').html($(this).html());
+                                     @Html.Raw(Model.OnSelected)
                                 })
-                                .data('id', v[v.length - 1]);
+                                .data('id', v[v.length - 1])
+                                .data('s', v);
                             $('.@grid-result').append($('<li>').append($el));
 
                             if ($('.@grid-input').val() == v[v.length - 1])

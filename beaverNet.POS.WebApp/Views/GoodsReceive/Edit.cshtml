@@ -24,7 +24,7 @@
                 {
                     ApiUrl = "/api/PurchaseOrder",
                     FieldIndex = 0,
-                    FieldName = "Number",
+                    FieldName = "PurchaseOrderId",
                     FieldLabel = Model.PurchaseOrder.Number,
                     FieldValue = Model.PurchaseOrderId.ToString(),
                     FieldDisplayName = "Number"
@@ -37,7 +37,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="GoodsReceiveDate" class="control-label"></label>
-                <input asp-for="GoodsReceiveDate" class="form-control" />
+                <input asp-for="GoodsReceiveDate" type="date" class="form-control" />
                 <span asp-validation-for="GoodsReceiveDate" class="text-danger"></span>
             </div>
             <div class="form-group">
