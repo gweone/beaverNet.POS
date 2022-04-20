@@ -205,8 +205,10 @@ namespace beaverNet.POS.WebApp.Controllers
 
             List<SalesOrderLine> line = await _context.SalesOrderLine.Where(x => x.SalesOrderId.Equals(id)).ToListAsync();
             List<InvenTran> tran = await _context.InvenTran.Where(x => x.TranSourceNumber.Equals(salesOrder.Number)).ToListAsync();
+            List<MedicalRecord> mr = await _context.MedicalRecord.Where(x => x.SalesOrderId == salesOrder.SalesOrderId).ToListAsync();
             _context.InvenTran.RemoveRange(tran);
             _context.SalesOrderLine.RemoveRange(line);
+            _context.MedicalRecord.RemoveRange(mr);
             _context.SalesOrder.Remove(salesOrder);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

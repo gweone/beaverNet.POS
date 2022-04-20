@@ -69,11 +69,22 @@
                     <th scope="col"></th>
                 </tr>
             </thead>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <a class="btn btn-success payment d-none" asp-action="Payment" asp-route-id="@Model.SalesOrderId">Lunas</a>
+                    </th>
+                </tr>
+            </tfoot>
         </table>
     </div>
-    <div class="col-md-12 text-right payment d-none">
-        <a class="btn btn-success" asp-action="Payment" asp-route-id="@Model.SalesOrderId">Lunas</a>
-    </div>
+    
 </div>
 
 <!--Modal-->
@@ -169,7 +180,61 @@
                 "lengthChange": false,
                 "bFilter": false,
                 "paging": false,
-                "info": false
+                "info": false,
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(), data;
+
+                    // converting to interger to find total
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // computing column Total of the complete result 
+                    var qtyTotal = api
+                        .column(1)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    var priceTotal = api
+                        .column(2)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    var subTotal = api
+                        .column(3)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    var discountTotal = api
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    var total = api
+                        .column(5)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+
+                    // Update footer by showing the total with the reference of the column index 
+                    $(api.column(0).footer()).html('Total');
+                    $(api.column(3).footer()).html(subTotal);
+                    $(api.column(4).footer()).html(discountTotal);
+                    $(api.column(5).footer()).html(total);
+                }
             });
 
             return false;

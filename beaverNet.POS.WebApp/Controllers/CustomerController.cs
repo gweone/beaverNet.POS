@@ -151,7 +151,9 @@ namespace beaverNet.POS.WebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var customer = await _context.Customer.FindAsync(id);
-            _context.Customer.Remove(customer);
+            List<MedicalRecord> mr = await _context.MedicalRecord.Where(x => x.CustomerId == customer.CustomerId).ToListAsync();
+            _context.MedicalRecord.RemoveRange(mr);
+            _context.Customer.Remove(customer);           
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
